@@ -1,3 +1,11 @@
+use crate::exec::{exec, get_test_program};
+
+mod exec;
+mod defs;
+mod builtins;
+mod expr;
+
 fn main() {
-    println!("Hello, world!");
+    let program = get_test_program();
+    exec(program);
 }
