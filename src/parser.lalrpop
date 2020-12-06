@@ -33,6 +33,7 @@ Expression: Expression = {
     <i:Identifier> => Expression::Ident(i),
     <n:Number> => Expression::Number(n),
     <c:FunctionCall> => Expression::FunctionCall(c),
+    <s:Set> => Expression::Set(s),
 };
 
 FunctionCall: FunctionCall = {
@@ -43,6 +44,10 @@ List: Vec<Expression> = {
     "(" <l:CommaList> ")" => l
 };
 
+Set: Vec<Expression> = {
+    "{" <l:CommaList> "}" => l
+};
+
 CommaList : Vec<Expression> = {
     <l:(<Expression> ",")*> <e:Expression> => {
         let mut l = l;
@@ -50,7 +55,6 @@ CommaList : Vec<Expression> = {
         l
     }
 };
-
 
 Identifier: String = <s:r"[A-Za-z]\w*"> => String::from(s);
 Number: f32 = <n:r"[0-9]+.[0-9]*"> => n.parse().unwrap();

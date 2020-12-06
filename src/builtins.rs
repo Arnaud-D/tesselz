@@ -13,6 +13,26 @@ pub fn get_builtins() -> HashMap<String, Function> {
     builtins
 }
 
+fn collape_set(object: Object) -> Object {
+    match object {
+        Object::Set(s) => {
+            let mut set = Vec::new();
+            for e in s {
+                match *e {
+                    Object::Set(se) => {
+                        for ee in se {
+                            set.push(ee)
+                        }
+                    }
+                    o => set.push(Box::new(o))
+                }
+            }
+            Object::Set(set)
+        }
+        o => o
+    }
+}
+
 fn add(objects: Vec<Object>) -> Object {
     let length = objects.len();
     if length != 2 {
@@ -23,6 +43,22 @@ fn add(objects: Vec<Object>) -> Object {
         (Object::Number(n1), Object::Number(n2)) => Object::Number(n1 + n2),
         (Object::Vector(x1, y1), Object::Vector(x2, y2)) => Object::Vector(x1 + x2, y1 + y2),
         (Object::Point(x, y), Object::Vector(dx, dy)) => Object::Point(x + dx, y + dy),
+        (Object::Set(s), o) => {
+            let mut result_set = Vec::new();
+            for element in s {
+                let result = Box::new(add(vec!(*element.clone(), o.clone())));
+                result_set.push(result);
+            }
+            collape_set(Object::Set(result_set))
+        }
+        (o, Object::Set(s)) => {
+            let mut result_set = Vec::new();
+            for element in s {
+                let result = Box::new(add(vec!(o.clone(), *element.clone())));
+                result_set.push(result);
+            }
+            collape_set(Object::Set(result_set))
+        }
         _ => panic!("`add` not implemented for {:?} and {:?}", o1, o2)
     }
 }
@@ -49,6 +85,14 @@ fn mul(objects: Vec<Object>) -> Object {
     match (o1, o2) {
         (Object::Number(n1), Object::Number(n2)) => Object::Number(n1 * n2),
         (Object::Number(k), Object::Vector(x, y)) => Object::Vector(k * x, k * y),
+        (Object::Set(s), o) => {
+            let mut result_set = Vec::new();
+            for element in s {
+                let result = Box::new(mul(vec!(*element.clone(), o.clone())));
+                result_set.push(result);
+            }
+            collape_set(Object::Set(result_set))
+        }
         _ => panic!("`mul` not implemented for {:?} and {:?}", o1, o2)
     }
 }

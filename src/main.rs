@@ -27,14 +27,13 @@ fn parser1() {
 
 fn get_test_source() -> &'static str {
     r#"
-        a = 3.14;
-        b = add(mul(2.0, a), 1.0);
-        v = vector(1.0, 2.0);
-        v2 = add(v, v);
-        v3 = mul(a, v2);
-        v3 > "whatever.txt";
-        A = point(1.0, 1.0);
-        B = add(A, v);
+        i = vector(1.0, 0.0);
+        j = vector(0.0, 1.0);
+        k = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 10.0};
+        vectors = add(mul(k, i), mul(k, j));
+        A = point(0.0, 0.0);
+        set = add(A, vectors);
+        set > "output.svg";
     "#
 }
 

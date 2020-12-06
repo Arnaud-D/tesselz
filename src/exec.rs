@@ -26,8 +26,8 @@ impl Context {
     fn exec_assignement(&mut self, assignment: Assignment) {
         println!(">>> {} = {:?};", assignment.ident, assignment.expr);
         let object = assignment.expr.eval(self);
-        self.objects.insert(assignment.ident, object);
         println!("{:?}", object);
+        self.objects.insert(assignment.ident, object);
     }
 
     fn exec_output(&self, output: Output) {

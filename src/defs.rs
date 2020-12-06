@@ -2,12 +2,13 @@ use std::collections::HashMap;
 
 pub type Function = fn(Vec<Object>) -> Object;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum Object {
     Number(f32),
     Vector(f32, f32),
     Point(f32, f32),
     Function(Function),
+    Set(Vec<Box<Object>>),
 }
 
 #[derive(Debug)]
@@ -19,8 +20,9 @@ pub struct FunctionCall {
 #[derive(Debug)]
 pub enum Expression {
     Number(f32),
-    FunctionCall(FunctionCall),
     Ident(String),
+    Set(Vec<Expression>),
+    FunctionCall(FunctionCall),
 }
 
 pub struct Context {

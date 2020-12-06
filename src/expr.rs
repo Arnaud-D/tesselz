@@ -1,4 +1,4 @@
-use crate::defs::{Expression, Context, Object, FunctionCall};
+use crate::defs::{Context, Expression, FunctionCall, Object};
 
 impl Expression {
     pub fn eval(&self, context: &Context) -> Object {
@@ -6,6 +6,7 @@ impl Expression {
             Expression::Number(n) => self.eval_number(n),
             Expression::FunctionCall(call) => self.eval_functioncall(call, &context),
             Expression::Ident(ident) => self.eval_ident(ident, &context),
+            Expression::Set(set) => self.eval_set(set, &context),
         }
     }
 
@@ -34,8 +35,17 @@ impl Expression {
     fn eval_ident(&self, ident: &String, context: &Context) -> Object {
         let opt_object = context.objects.get(ident);
         match opt_object {
-            Some(object) => *object,
+            Some(object) => object.clone(),
             None => panic!("Identifier unkown"),
         }
+    }
+
+    fn eval_set(&self, set: &Vec<Expression>, context: &Context) -> Object {
+        Object::Set(
+            set
+                .iter()
+                .map(|x: &Expression| Box::new(x.eval(&context)))
+                .collect()
+        )
     }
 }
