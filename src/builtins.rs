@@ -10,6 +10,7 @@ pub fn get_builtins() -> HashMap<String, Function> {
     builtins.insert(String::from("div"), div as Function);
     builtins.insert(String::from("vector"), vector as Function);
     builtins.insert(String::from("point"), point as Function);
+    builtins.insert(String::from("polygon"), polygon as Function);
     builtins
 }
 
@@ -43,6 +44,14 @@ fn add(objects: Vec<Object>) -> Object {
         (Object::Number(n1), Object::Number(n2)) => Object::Number(n1 + n2),
         (Object::Vector(x1, y1), Object::Vector(x2, y2)) => Object::Vector(x1 + x2, y1 + y2),
         (Object::Point(x, y), Object::Vector(dx, dy)) => Object::Point(x + dx, y + dy),
+        (Object::Polygon(coords), Object::Vector(dx, dy)) => {
+            let mut new_coords = Vec::new();
+            for coord in coords {
+                let (x, y) = *coord;
+                new_coords.push((x + dx, y + dy));
+            }
+            Object::Polygon(new_coords)
+        }
         (Object::Set(s), o) => {
             let mut result_set = Vec::new();
             for element in s {
@@ -137,4 +146,19 @@ fn point(objects: Vec<Object>) -> Object {
         (Object::Number(x), Object::Number(y)) => Object::Point(*x, *y),
         _ => panic!("`point` not implemented for {:?} and {:?}", o1, o2)
     }
+}
+
+fn polygon(objects: Vec<Object>) -> Object {
+    let length = objects.len();
+    if length < 2 {
+        panic!("`polygon` called with {} arguments. At leats 2 expected.", length);
+    }
+    let mut polygon = Vec::new();
+    for o in objects {
+        match o {
+            Object::Point(x, y) => polygon.push((x, y)),
+            _ => panic!("`polygon` received {:?} which is not a Point.", o)
+        }
+    }
+    Object::Polygon(polygon)
 }

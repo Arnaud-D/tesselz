@@ -31,8 +31,12 @@ fn get_test_source() -> &'static str {
         j = vector(0.0, 1.0);
         k = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 10.0};
         vectors = add(mul(k, i), mul(k, j));
-        A = point(0.0, 0.0);
-        set = add(A, vectors);
+        A = point(0.5, 0.5);
+        B = point(-0.5, 0.5);
+        C = point(-0.5, -0.5);
+        D = point(0.5, -0.5);
+        square = polygon(A, B, C, D);
+        set = add(square, vectors);
         set > "output.svg";
     "#
 }
