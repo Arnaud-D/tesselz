@@ -5,6 +5,7 @@ pub type Function = fn(Vec<Object>) -> Object;
 #[derive(Debug, Clone, Copy)]
 pub enum Object {
     Number(f32),
+    Vector(f32, f32),
     Function(Function),
 }
 

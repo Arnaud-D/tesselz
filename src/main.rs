@@ -30,6 +30,11 @@ fn get_test_source() -> &'static str {
         a = 3.14;
         b = add(mul(2.0, a), 1.0);
         b > "whatever.txt";
+        v = vector(1.0, 2.0);
+        v2 = add(v, v);
+        v2 > "whatever.txt";
+        v3 = mul(a, v2);
+        v3 > "whatever.txt";
     "#
 }
 

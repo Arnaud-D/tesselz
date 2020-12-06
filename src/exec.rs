@@ -24,15 +24,16 @@ impl Context {
     }
 
     fn exec_assignement(&mut self, assignment: Assignment) {
-        println!("Assignment of `{:?}` to `{}`.", assignment.expr, assignment.ident);
+        println!(">>> {} = {:?};", assignment.ident, assignment.expr);
         let object = assignment.expr.eval(self);
         self.objects.insert(assignment.ident, object);
+        println!("{:?}", object);
     }
 
     fn exec_output(&self, output: Output) {
-        println!("Output `{:?}` to `{}`.", output.expr, output.filename);
+        println!(">>> {:?} > \"{}\"", output.expr, output.filename);
         let object = output.expr.eval(self);
-        println!("Output value = {:?}", object);
+        println!("{:?}", object);
     }
 }
 
@@ -42,7 +43,6 @@ pub fn exec(program: Program) {
     let mut context = Context::default();
     let Program(statements) = program;
     for statement in statements {
-        println!("Context: {:?}", context.objects.iter());
         context.exec(statement);
     }
 }
