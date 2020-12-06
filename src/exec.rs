@@ -1,22 +1,7 @@
 use std::collections::HashMap;
 
-use crate::defs::{Context, Expression, Object, FunctionCall};
 use crate::builtins::get_builtins;
-
-pub struct Assignment {
-    pub ident: String,
-    pub expr: Expression,
-}
-
-pub struct Output {
-    pub filename: String,
-    pub expr: Expression,
-}
-
-pub enum Statement {
-    Assignment(Assignment),
-    Output(Output),
-}
+use crate::defs::{Assignment, Context, Expression, FunctionCall, Object, Output, Statement};
 
 impl Context {
     fn default() -> Self {

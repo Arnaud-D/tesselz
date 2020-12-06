@@ -1,0 +1,57 @@
+use crate::{
+    defs::{FunctionCall, Expression, Statement, Assignment, Output},
+};
+
+grammar;
+
+pub Statements : Vec<Statement> = {
+    <l:(<Statement>)*> <s:Statement> => {
+        let mut l = l;
+        l.push(s);
+        l
+    }
+};
+
+pub Statement: Statement = {
+    <sb:StatementBody> ";" => sb,
+};
+
+StatementBody : Statement = {
+    <a:Assignment> => Statement::Assignment(a),
+    <o: Output> => Statement::Output(o),
+};
+
+Assignment: Assignment = {
+    <i:Identifier> "=" <e: Expression> => Assignment {ident: i, expr: e},
+};
+
+Output: Output = {
+    <e:Expression> ">" <f: Filename> => Output { expr: e, filename:f },
+};
+
+Expression: Expression = {
+    <i:Identifier> => Expression::Ident(i),
+    <n:Number> => Expression::Number(n),
+    <c:FunctionCall> => Expression::FunctionCall(c),
+};
+
+FunctionCall: FunctionCall = {
+    <i:Identifier> <l:List> => FunctionCall{ fun: i, args: l}
+};
+
+List: Vec<Expression> = {
+    "(" <l:CommaList> ")" => l
+};
+
+CommaList : Vec<Expression> = {
+    <l:(<Expression> ",")*> <e:Expression> => {
+        let mut l = l;
+        l.push(e);
+        l
+    }
+};
+
+
+Identifier: String = <s:r"[A-Za-z]\w*"> => String::from(s);
+Number: f32 = <n:r"[0-9]+.[0-9]*"> => n.parse().unwrap();
+Filename: String = <s:r#"".*""#> => String::from(s);

@@ -24,3 +24,20 @@ pub enum Expression {
 pub struct Context {
     pub objects: HashMap<String, Object>,
 }
+
+#[derive(Debug)]
+pub struct Assignment {
+    pub ident: String,
+    pub expr: Expression,
+}
+
+#[derive(Debug)]
+pub struct Output {
+    pub filename: String,
+    pub expr: Expression,
+}
+
+pub enum Statement {
+    Assignment(Assignment),
+    Output(Output),
+}

@@ -2,6 +2,11 @@
 name = "tesselz"
 version = "0.1.0"
 authors = ["Arnaud-D <35631001+Arnaud-D@users.noreply.github.com>"]
-edition = "2018"
+edition =   "2018"
+
+[build-dependencies]
+lalrpop = {version = "0.19.0", features = ["lexer"] }
 
 [dependencies]
+lalrpop-util = "0.19.0"
+regex = "1"
