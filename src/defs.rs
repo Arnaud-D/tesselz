@@ -6,6 +6,7 @@ pub type Function = fn(Vec<Object>) -> Object;
 pub enum Object {
     Number(f32),
     Vector(f32, f32),
+    Point(f32, f32),
     Function(Function),
 }
 

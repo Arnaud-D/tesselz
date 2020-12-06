@@ -9,6 +9,7 @@ pub fn get_builtins() -> HashMap<String, Function> {
     builtins.insert(String::from("mul"), mul as Function);
     builtins.insert(String::from("div"), div as Function);
     builtins.insert(String::from("vector"), vector as Function);
+    builtins.insert(String::from("point"), point as Function);
     builtins
 }
 
@@ -21,6 +22,7 @@ fn add(objects: Vec<Object>) -> Object {
     match (o1, o2) {
         (Object::Number(n1), Object::Number(n2)) => Object::Number(n1 + n2),
         (Object::Vector(x1, y1), Object::Vector(x2, y2)) => Object::Vector(x1 + x2, y1 + y2),
+        (Object::Point(x, y), Object::Vector(dx, dy)) => Object::Point(x + dx, y + dy),
         _ => panic!("`add` not implemented for {:?} and {:?}", o1, o2)
     }
 }
@@ -76,7 +78,19 @@ fn vector(objects: Vec<Object>) -> Object {
     }
     let (o1, o2) = (&objects[0], &objects[1]);
     match (o1, o2) {
-        (Object::Number(n1), Object::Number(n2)) => Object::Vector(*n1, *n2),
+        (Object::Number(x), Object::Number(y)) => Object::Vector(*x, *y),
         _ => panic!("`vector` not implemented for {:?} and {:?}", o1, o2)
+    }
+}
+
+fn point(objects: Vec<Object>) -> Object {
+    let length = objects.len();
+    if length != 2 {
+        panic!("`point` called with {} arguments. 2 expected.", length);
+    }
+    let (o1, o2) = (&objects[0], &objects[1]);
+    match (o1, o2) {
+        (Object::Number(x), Object::Number(y)) => Object::Point(*x, *y),
+        _ => panic!("`point` not implemented for {:?} and {:?}", o1, o2)
     }
 }
