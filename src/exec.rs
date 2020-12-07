@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::prelude::*;
 
 use crate::builtins::get_builtins;
 use crate::defs::{Assignment, Context, Expression, FunctionCall, Object, Output, Statement};
@@ -34,7 +36,34 @@ impl Context {
         println!(">>> {:?} > \"{}\"", output.expr, output.filename);
         let object = output.expr.eval(self);
         println!("{:?}", object);
+        let file = File::create(output.filename).unwrap();
+        let start = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-10 -10 100 100\">";
+        let coll_obj = match object {
+            Object::Polygon(p) => vec!(Box::new(Object::Polygon(p))),
+            Object::Set(s) => s,
+            _ => panic!("Expr does not yield polygon or polygon set. Cannot output.")
+        };
+        let end = "</svg>";
+        writeln!(&file, "{}", start).unwrap();
+        for obj in coll_obj {
+            let coord_str = match *obj {
+                Object::Polygon(points) => get_coord_str(points),
+                _ => panic!("The programmer is a bobo fool.")
+            };
+            writeln!(&file, "<polygon points=\"{}\" fill=\"black\" stroke=\"none\" />", coord_str).unwrap();
+        }
+
+        writeln!(&file, "{}", end).unwrap();
     }
+}
+
+fn get_coord_str(points: Vec<(f32, f32)>) -> String {
+    let mut coord_str = String::new();
+    for (x, y) in points {
+        let frag = format!("{},{} ", x, y);
+        coord_str += &*frag;
+    }
+    coord_str
 }
 
 pub struct Program(pub Vec<Statement>);
