@@ -1,4 +1,6 @@
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+};
 
 use crate::defs::{
     ElementType::{self, Number, Point, Polygon, Vector},
@@ -8,22 +10,26 @@ use crate::defs::{
 
 pub fn get_builtins() -> HashMap<String, FunctionType> {
     let mut builtins = HashMap::new();
+
     // Constructors
     builtins.insert(String::from("vector"), vector as FunctionType);
     builtins.insert(String::from("point"), point as FunctionType);
     builtins.insert(String::from("polygon"), polygon as FunctionType);
+
     // Binary operators
     builtins.insert(String::from("add"), add as FunctionType);
     builtins.insert(String::from("sub"), sub as FunctionType);
     builtins.insert(String::from("mul"), mul as FunctionType);
     builtins.insert(String::from("div"), div as FunctionType);
+
     // Transformations
     builtins.insert(String::from("translate"), translate as FunctionType);
+    builtins.insert(String::from("rotate"), rotate as FunctionType);
 
     builtins
 }
 
-fn map2(fun: fn(ElementType, ElementType) -> ElementType, o1: Object, o2: Object) -> Object {
+fn map2(fun: Box<dyn Fn(ElementType, ElementType) -> ElementType>, o1: Object, o2: Object) -> Object {
     match (o1.clone(), o2.clone()) {
         (Element(e1), Element(e2)) => Element(fun(e1, e2)),
         (Set(s), Element(e)) => {
@@ -67,7 +73,7 @@ fn vector(objects: Vec<Object>) -> Object {
         panic!("`vector` called with {} arguments. 2 expected.", length);
     }
     let (o1, o2) = (&objects[0], &objects[1]);
-    map2(vector_elem, o1.clone(), o2.clone())
+    map2(Box::new(vector_elem), o1.clone(), o2.clone())
 }
 
 fn vector_elem(e1: ElementType, e2: ElementType) -> ElementType {
@@ -83,7 +89,7 @@ fn point(objects: Vec<Object>) -> Object {
         panic!("`point` called with {} arguments. 2 expected.", length);
     }
     let (o1, o2) = (&objects[0], &objects[1]);
-    map2(point_elem, o1.clone(), o2.clone())
+    map2(Box::new(point_elem), o1.clone(), o2.clone())
 }
 
 fn point_elem(e1: ElementType, e2: ElementType) -> ElementType {
@@ -120,7 +126,7 @@ fn add(objects: Vec<Object>) -> Object {
         panic!("`add` called with {} arguments. 2 expected.", length);
     }
     let (o1, o2) = (&objects[0], &objects[1]);
-    map2(add_elem, o1.clone(), o2.clone())
+    map2(Box::new(add_elem), o1.clone(), o2.clone())
 }
 
 fn add_elem(e1: ElementType, e2: ElementType) -> ElementType {
@@ -137,7 +143,7 @@ fn sub(objects: Vec<Object>) -> Object {
         panic!("`sub` called with {} arguments. 2 expected.", length);
     }
     let (o1, o2) = (&objects[0], &objects[1]);
-    map2(sub_elem, o1.clone(), o2.clone())
+    map2(Box::new(sub_elem), o1.clone(), o2.clone())
 }
 
 fn sub_elem(e1: ElementType, e2: ElementType) -> ElementType {
@@ -154,7 +160,7 @@ fn mul(objects: Vec<Object>) -> Object {
         panic!("`mul` called with {} arguments. 2 expected.", length);
     }
     let (o1, o2) = (&objects[0], &objects[1]);
-    map2(mul_elem, o1.clone(), o2.clone())
+    map2(Box::new(mul_elem), o1.clone(), o2.clone())
 }
 
 fn mul_elem(e1: ElementType, e2: ElementType) -> ElementType {
@@ -171,7 +177,7 @@ fn div(objects: Vec<Object>) -> Object {
         panic!("`div` called with {} arguments. 2 expected.", length);
     }
     let (o1, o2) = (&objects[0], &objects[1]);
-    map2(div_elem, o1.clone(), o2.clone())
+    map2(Box::new(div_elem), o1.clone(), o2.clone())
 }
 
 fn div_elem(e1: ElementType, e2: ElementType) -> ElementType {
@@ -187,7 +193,7 @@ fn translate(objects: Vec<Object>) -> Object {
         panic!("`translate` called with {} arguments. 2 expected.", length);
     }
     let (o1, o2) = (&objects[0], &objects[1]);
-    map2(translate_elem, o1.clone(), o2.clone())
+    map2(Box::new(translate_elem), o1.clone(), o2.clone())
 }
 
 fn translate_elem(e1: ElementType, e2: ElementType) -> ElementType {
@@ -202,5 +208,47 @@ fn translate_elem(e1: ElementType, e2: ElementType) -> ElementType {
         }
         (Point(x, y), Vector(dx, dy)) => Point(x + dx, y + dy),
         _ => panic!("`translate` not implemented for {:?} and {:?}", e1, e2)
+    }
+}
+
+fn rotate(objects: Vec<Object>) -> Object {
+    let length = objects.len();
+    if length != 3 {
+        panic!("`translate` called with {} arguments. 3 expected.", length);
+    }
+    let (o1, o2, o3) = (&objects[0], &objects[1], &objects[2]);
+    match o3.clone() {
+        Element(e3) => {
+            let e3b = e3.clone();
+            let rotate_elem_point =
+                move |e1: ElementType, e2: ElementType| {
+                    rotate_elem(e1, e2, e3b.clone())
+                };
+            map2(Box::new(rotate_elem_point), o1.clone(), o2.clone())
+        }
+        _ => panic!("`rotate` expects a point as a third argument, not a set.")
+    }
+}
+
+fn rotate_elem(e1: ElementType, e2: ElementType, e3: ElementType) -> ElementType {
+    match e3.clone() {
+        Point(x0, y0) => {
+            match (e1.clone(), e2.clone()) {
+                (Polygon(coords), Number(t)) => {
+                    let mut new_coords = Vec::new();
+                    for coord in coords {
+                        let (x, y) = coord;
+                        let (dx, dy) = (x - x0, y - y0);
+                        let dx1 = dx * t.cos() - dy * t.sin();
+                        let dy1 = dx * t.sin() + dy * t.cos();
+                        new_coords.push((x0 + dx1, y0 + dy1));
+                    }
+                    Polygon(new_coords)
+                }
+                (Point(x, y), Vector(dx, dy)) => Point(x + dx, y + dy),
+                _ => panic!("`translate` not implemented for {:?} and {:?}", e1, e2)
+            }
+        }
+        _ => panic!("Trying to use `rotate` with third argument not being a point.")
     }
 }

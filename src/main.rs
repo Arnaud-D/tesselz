@@ -27,15 +27,15 @@ fn parser1() {
 
 fn get_test_source() -> &'static str {
     r#"
-        k = {10, 20, 30, 50, 70, 90, 100, 110};
-        i = mul(k, vector(1, 2));
-        j = mul(k, vector(2, 0));
-        vectors = add(i, j);
+        k = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
         A = point(0, 0);
-        B = point(10, 10);
-        C = point(0, 20);
-        square = polygon({A, B, C});
-        pattern = translate(square, vectors);
+        B = point(50, 0);
+        C = point(50, 50);
+        D = point(0, 50);
+        square = polygon({A, B, C, D});
+        square_offset = translate(square, vector(550, 550));
+        angles = mul(div(6.28, 12), k);
+        pattern = rotate(square_offset, angles, point(500, 500));
         pattern > "output.svg";
     "#
 }
