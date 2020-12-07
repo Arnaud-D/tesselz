@@ -1,15 +1,21 @@
 use std::collections::HashMap;
 
-pub type Function = fn(Vec<Object>) -> Object;
+pub type FunctionType = fn(Vec<Object>) -> Object;
+pub type SetType = Vec<Object>;
 
 #[derive(Debug, Clone)]
 pub enum Object {
+    Element(ElementType),
+    Set(SetType),
+}
+
+#[derive(Debug, Clone)]
+pub enum ElementType {
     Number(f32),
     Vector(f32, f32),
     Point(f32, f32),
     Polygon(Vec<(f32, f32)>),
-    Function(Function),
-    Set(Vec<Box<Object>>),
+    Function(FunctionType),
 }
 
 #[derive(Debug)]

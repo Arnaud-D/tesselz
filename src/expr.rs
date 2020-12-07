@@ -1,4 +1,4 @@
-use crate::defs::{Context, Expression, FunctionCall, Object};
+use crate::defs::{Context, Expression, FunctionCall, Object, ElementType};
 
 impl Expression {
     pub fn eval(&self, context: &Context) -> Object {
@@ -11,14 +11,14 @@ impl Expression {
     }
 
     fn eval_number(&self, n: &f32) -> Object {
-        Object::Number(*n)
+        Object::Element(ElementType::Number(*n))
     }
 
     fn eval_functioncall(&self, call: &FunctionCall, context: &Context) -> Object {
         let opt_fun = context.objects.get(&call.fun);
         match opt_fun {
             Some(fun) => match fun {
-                Object::Function(f) => {
+                Object::Element(ElementType::Function(f)) => {
                     let args =
                         call.args
                             .iter()
@@ -44,7 +44,7 @@ impl Expression {
         Object::Set(
             set
                 .iter()
-                .map(|x: &Expression| Box::new(x.eval(&context)))
+                .map(|x: &Expression| x.eval(&context))
                 .collect()
         )
     }

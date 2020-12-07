@@ -3,13 +3,13 @@ use std::fs::File;
 use std::io::prelude::*;
 
 use crate::builtins::get_builtins;
-use crate::defs::{Assignment, Context, Expression, FunctionCall, Object, Output, Statement};
+use crate::defs::{Assignment, Context, Expression, FunctionCall, Object, Output, Statement, ElementType};
 
 impl Context {
     fn default() -> Self {
         let mut objects = HashMap::new();
         for (name, fun) in get_builtins().iter() {
-            objects.insert(name.clone(), Object::Function(*fun));
+            objects.insert(name.clone(), Object::Element(ElementType::Function(*fun)));
         }
         Self {
             objects
@@ -37,20 +37,20 @@ impl Context {
         let object = output.expr.eval(self);
         println!("{:?}", object);
         let file = File::create(output.filename).unwrap();
-        let start = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-10 -10 100 100\">";
+        let start = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 1000\">";
         let coll_obj = match object {
-            Object::Polygon(p) => vec!(Box::new(Object::Polygon(p))),
+            Object::Element(ElementType::Polygon(p)) => vec!(Object::Element(ElementType::Polygon(p))),
             Object::Set(s) => s,
             _ => panic!("Expr does not yield polygon or polygon set. Cannot output.")
         };
         let end = "</svg>";
         writeln!(&file, "{}", start).unwrap();
         for obj in coll_obj {
-            let coord_str = match *obj {
-                Object::Polygon(points) => get_coord_str(points),
+            let coord_str = match obj {
+                Object::Element(ElementType::Polygon(points)) => get_coord_str(points),
                 _ => panic!("The programmer is a bobo fool.")
             };
-            writeln!(&file, "<polygon points=\"{}\" fill=\"black\" stroke=\"none\" />", coord_str).unwrap();
+            writeln!(&file, "<polygon points=\"{}\" fill=\"grey\" stroke=\"black\" />", coord_str).unwrap();
         }
 
         writeln!(&file, "{}", end).unwrap();
