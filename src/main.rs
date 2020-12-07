@@ -27,15 +27,14 @@ fn parser1() {
 
 fn get_test_source() -> &'static str {
     r#"
-        i = vector(1.0, 0.0);
-        j = vector(0.0, 1.0);
-        k = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 10.0};
+        i = vector(6, 0);
+        j = vector(0, 6);
+        k = {0, 1, 3, 4, 5, 6, 7, 9, 10};
         vectors = add(mul(k, i), mul(k, j));
-        A = point(0.5, 0.5);
-        B = point(-0.5, 0.5);
-        C = point(-0.5, -0.5);
-        D = point(0.5, -0.5);
-        square = polygon(A, B, C, D);
+        A = point(2, 2);
+        B = point(-2, 2);
+        C = point(-2, -2);
+        square = polygon(A, B, C);
         set = add(square, vectors);
         set > "output.svg";
     "#

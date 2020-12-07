@@ -57,5 +57,5 @@ CommaList : Vec<Expression> = {
 };
 
 Identifier: String = <s:r"[A-Za-z]\w*"> => String::from(s);
-Number: f32 = <n:r"-?[0-9]+.[0-9]*"> => n.parse().unwrap();
+Number: f32 = <n:r"[-+]?((\d*\.\d+)|(\d+\.?))([eE][-+]?\d+)?"> => n.parse().unwrap();
 Filename: String = <s:r#"".*""#> => String::from(&s[1..s.len()-1]);
