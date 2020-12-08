@@ -7,4 +7,4 @@ square = polygon({A, B, C, D});
 square_offset = translate(square, vector(550, 550));
 angles = mul(div(6.28, 12), k);
 pattern = rotate(square_offset, angles, point(500, 500));
-pattern > "output.svg";
+pattern > "squared_circle.svg";
