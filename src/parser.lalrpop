@@ -1,5 +1,5 @@
 use crate::{
-    defs::{FunctionCall, Expression, Statement, Assignment, Output},
+    defs::{FunctionCall, Expression, Statement, Assignment, Render},
 };
 
 grammar;
@@ -18,15 +18,15 @@ pub Statement: Statement = {
 
 StatementBody : Statement = {
     <a:Assignment> => Statement::Assignment(a),
-    <o: Output> => Statement::Output(o),
+    <r:Render> => Statement::Render(r),
 };
 
 Assignment: Assignment = {
     <i:Identifier> "=" <e: Expression> => Assignment {ident: i, expr: e},
 };
 
-Output: Output = {
-    <e:Expression> ">" <f: Filename> => Output { expr: e, filename:f },
+Render: Render = {
+    <e:Expression> ">" <f: Filename> => Render { expr: e, filename:f },
 };
 
 Expression: Expression = {

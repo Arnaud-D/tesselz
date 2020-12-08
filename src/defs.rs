@@ -43,12 +43,12 @@ pub struct Assignment {
 }
 
 #[derive(Debug)]
-pub struct Output {
+pub struct Render {
     pub filename: String,
     pub expr: Expression,
 }
 
 pub enum Statement {
     Assignment(Assignment),
-    Output(Output),
+    Render(Render),
 }

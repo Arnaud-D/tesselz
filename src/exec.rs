@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::prelude::*;
 
 use crate::builtins::get_builtins;
-use crate::defs::{Assignment, Context, Expression, FunctionCall, Object, Output, Statement, ElementType};
+use crate::defs::{Assignment, Context, Expression, FunctionCall, Object, Render, Statement, ElementType};
 
 impl Context {
     fn default() -> Self {
@@ -21,7 +21,7 @@ impl Context {
     fn exec(&mut self, statement: Statement) {
         match statement {
             Statement::Assignment(assignment) => self.exec_assignement(assignment),
-            Statement::Output(output) => self.exec_output(output),
+            Statement::Render(render) => self.exec_render(render),
         }
     }
 
@@ -32,16 +32,16 @@ impl Context {
         self.objects.insert(assignment.ident, object);
     }
 
-    fn exec_output(&self, output: Output) {
-        println!(">>> {:?} > \"{}\"", output.expr, output.filename);
-        let object = output.expr.eval(self);
+    fn exec_render(&self, render: Render) {
+        println!(">>> {:?} > \"{}\"", render.expr, render.filename);
+        let object = render.expr.eval(self);
         println!("{:?}", object);
-        let file = File::create(output.filename).unwrap();
+        let file = File::create(render.filename).unwrap();
         let start = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 1000\">";
         let coll_obj = match object {
             Object::Element(ElementType::Polygon(p)) => vec!(Object::Element(ElementType::Polygon(p))),
             Object::Set(s) => s,
-            _ => panic!("Expr does not yield polygon or polygon set. Cannot output.")
+            _ => panic!("Expr does not yield polygon or polygon set. Cannot render.")
         };
         let end = "</svg>";
         writeln!(&file, "{}", start).unwrap();
@@ -99,29 +99,29 @@ pub fn get_test_program() -> Program {
         fun: String::from("div"),
         args: vec!(Expression::Ident(id1.clone()), Expression::Ident(id2.clone())),
     });
-    let output1 = Output {
+    let render1 = Render {
         filename: String::from("add.svg"),
         expr: fc1,
     };
-    let output2 = Output {
+    let render2 = Render {
         filename: String::from("sub.svg"),
         expr: fc2,
     };
-    let output3 = Output {
+    let render3 = Render {
         filename: String::from("mul.svg"),
         expr: fc3,
     };
-    let output4 = Output {
+    let render4 = Render {
         filename: String::from("div.svg"),
         expr: fc4,
     };
     let program = Program(vec!(
         Statement::Assignment(asg1),
         Statement::Assignment(asg2),
-        Statement::Output(output1),
-        Statement::Output(output2),
-        Statement::Output(output3),
-        Statement::Output(output4),
+        Statement::Render(render1),
+        Statement::Render(render2),
+        Statement::Render(render3),
+        Statement::Render(render4),
     ));
     program
 }
